@@ -1,0 +1,19 @@
+{
+  "name": "shapyeditor",
+  "version": "1.0.0",
+  "description": "Python Editor Library with Pyodide and Ruff",
+  "main": "dist/py-editor-lib.umd.js",
+  "module": "dist/py-editor-lib.es.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "clipboardy": "^5.0.0",
+    "vite": "^5.2.11",
+    "vite-plugin-static-copy": "^1.0.5"
+  }
+}
