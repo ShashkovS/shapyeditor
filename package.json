@@ -6,13 +6,19 @@
   "module": "dist/py-editor-lib.es.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "test": "playwright test",
+    "testui": "playwright test --ui",
+    "testh": "playwright test --headed",
+    "test:e2e": "playwright test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "clipboardy": "^5.0.0",
+    "terser": "^5.44.0",
     "vite": "^5.2.11",
     "vite-plugin-static-copy": "^1.0.5"
   }
