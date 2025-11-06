@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <!-- MyCMS -->
-  <link href="../s/cssNjs/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
-  <link href="../s/cssNjs/inf_course_v3.css" media="all" rel="stylesheet"/>
-  <script src="../s/cssNjs/inf_course_v3.js" type="module"></script>
-  <link href="../s/cssNjs/pyide.css" media="all" rel="stylesheet"/>
-  <script src="../s/cssNjs/pyide.js" type="module"></script>
+  <link href="../shapyeditor/cssNjs/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+  <link href="../shapyeditor/cssNjs/inf_course_v3.css" media="all" rel="stylesheet"/>
+  <script src="../shapyeditor/cssNjs/inf_course_v3.js" type="module"></script>
+  <link href="../shapyeditor/cssNjs/pyide.css" media="all" rel="stylesheet"/>
+  <script src="../shapyeditor/cssNjs/pyide.js" type="module"></script>
 
   <title>
     xx
@@ -52,19 +52,10 @@
       print(a + b)
     </web-ide>
     <br>
-    <web-ide>
-      print("Hello, theory2!")
-      a = 1
-      b = 21
-      print(a + b)
-    </web-ide>
-
-    <br>
-    <web-ide>
-      print("Hello, theory2!")
-      a = 1
-      b = 211
-      print(a + b)
+    <web-ide micropip="numpy">
+      import numpy as np
+      np.random.seed(42)
+      print(np.random.randint(10, 99, (2, 3, 4)))
     </web-ide>
 
   </article>
