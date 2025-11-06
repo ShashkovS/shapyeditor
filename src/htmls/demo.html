@@ -56,11 +56,11 @@
     </web-ide>
 
     <br>
-    <web-ide>
-      print("Hello, theory2!")
-      a = 1
-      b = 211
-      print(a + b)
+    <p>Even numpy can be used: </p>
+    <web-ide micropip="numpy">
+      import numpy as np
+      np.random.seed(2025)
+      print(np.random.randint(1, 9, (2,3,4)))
     </web-ide>
 
   </article>
