@@ -1,6 +1,6 @@
 "use strict";
 // const skulptUrl = location.origin + '/webpyide/skulpt/skulpt.min.js';
-const skulptUrl = location.origin + '/s/skulpt/skulpt.min.js';
+const skulptUrl = location.origin + '/shapyeditor/skulpt/skulpt.min.js';
 importScripts(skulptUrl);
 Sk.configure({
   __future__: Sk.python3,
