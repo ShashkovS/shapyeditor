@@ -45,6 +45,10 @@ export default defineConfig({
           src: 'src/s/cssNjs/ruffFormatterWorker.js',
           dest: ''
         },
+        {
+          src: 'src/s/aceMods/worker-python.js',
+          dest: 'aceMods'
+        },
       ]
     })
   ],
