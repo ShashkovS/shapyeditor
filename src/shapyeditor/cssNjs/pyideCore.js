@@ -150,6 +150,7 @@ const normalizeInstallConfig = (config) => {
 
 export class pythonIDE {
   constructor($parentElm, $examples = [], problemName = '', installConfig = null, initialCode = '') {
+    debugger;
     // Сохраняем ссылку на предка, в котором живём
     this.$parentElm = $parentElm;
     this.installConfig = normalizeInstallConfig(installConfig);
