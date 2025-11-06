@@ -2,6 +2,11 @@ import {pythonFormatter} from './python-formatter.js';
 import {initAceEditors} from '../aceMods/init-ace-ide.js';
 import {workerObj} from '../pyodideMods/pyodide-worker-manager.js';
 import {translateError} from '../aceMods/errors-translator.js';
+import {
+  getAssetsBaseUrl,
+  normalizeAssetsBaseUrl,
+  resolveAssetUrlFrom,
+} from './asset-path.js';
 
 const allIDEs = [];
 
@@ -149,11 +154,22 @@ const normalizeInstallConfig = (config) => {
 };
 
 export class pythonIDE {
-  constructor($parentElm, $examples = [], problemName = '', installConfig = null, initialCode = '') {
+  constructor(
+    $parentElm,
+    $examples = [],
+    problemName = '',
+    installConfig = null,
+    initialCode = '',
+    assetsBaseUrl = null
+  ) {
     // Сохраняем ссылку на предка, в котором живём
     this.$parentElm = $parentElm;
     this.installConfig = normalizeInstallConfig(installConfig);
     this.initialCode = typeof initialCode === 'string' ? initialCode : '';
+    this.assetsBaseUrl = normalizeAssetsBaseUrl(
+      assetsBaseUrl != null ? assetsBaseUrl : getAssetsBaseUrl()
+    );
+    this.resolveAssetUrl = (relativePath) => resolveAssetUrlFrom(this.assetsBaseUrl, relativePath);
     // Если всё уже загружено, то ничего не делаем
     if (this.is_ready()) {
       return;
@@ -183,7 +199,7 @@ export class pythonIDE {
     // Список вручную добавленных тестов
     this.ownTests = [];
     this.isFormatting = false;
-    this.workerObj = new workerObj();
+    this.workerObj = new workerObj({assetsBaseUrl: this.assetsBaseUrl});
     // Удаляем всё к чертям, если в предыдущий раз что-то пошло не так или там есть какая-то треш-разметка
     this.deleteAllChildren();
     // Создаём редактор
@@ -234,7 +250,7 @@ export class pythonIDE {
     const $commandsElm = document.createElement('div');
     $commandsElm.classList.add("pythonEditor");
     this.$parentElm.appendChild($commandsElm);
-    this.aceEditor = initAceEditors($commandsElm);
+    this.aceEditor = initAceEditors($commandsElm, undefined, {assetsBaseUrl: this.assetsBaseUrl});
     this.aceEditor.setValue('\n\n', 1);
     this.aceEditor.moveCursorTo(0, 0);
     this.UndoManager = this.aceEditor.session.getUndoManager();

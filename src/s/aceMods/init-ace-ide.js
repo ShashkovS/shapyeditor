@@ -12,10 +12,36 @@ import DocTooltip from './doc-tooltip.js';
 import Completions from './completions.js';
 // Импортируем кастомный модуль работы с питоном (поддерживающий worker'ов)
 import './mode-python-with-worker.js';
+import {
+  getAssetsBaseUrl,
+  normalizeAssetsBaseUrl,
+  resolveAssetUrlFrom,
+} from '../cssNjs/asset-path.js';
 
 // Настраиваем пути и константы
 const ace = window.ace;
-ace.config.set('basePath', new URL('../ace', import.meta.url).pathname);
+let cachedAceBasePath = null;
+
+function stripTrailingSlash(value) {
+  return value ? value.replace(/\/+$/, '') : value;
+}
+
+function resolveAceBasePath(rawBaseUrl) {
+  const base = normalizeAssetsBaseUrl(
+    rawBaseUrl != null ? rawBaseUrl : getAssetsBaseUrl()
+  );
+  const target = resolveAssetUrlFrom(base, '../ace/');
+  return stripTrailingSlash(target);
+}
+
+function ensureAceBasePath(rawBaseUrl) {
+  const nextBasePath = resolveAceBasePath(rawBaseUrl);
+  if (!cachedAceBasePath || cachedAceBasePath !== nextBasePath) {
+    ace.config.set('basePath', nextBasePath);
+    cachedAceBasePath = nextBasePath;
+  }
+  return cachedAceBasePath;
+}
 const langTools = ace.require("ace/ext/language_tools");
 const useragent = ace.require("ace/lib/useragent");
 
@@ -221,6 +247,7 @@ const editorDefaultOptions = {
 };
 
 export const initAceEditors = ($editorElm, customCompletions, opts = {}) => {
+  ensureAceBasePath(opts.assetsBaseUrl);
   // opts.onFormat?: (code: string) => string|Promise<string>
   const editor = ace.edit($editorElm);
   editor.setOptions({

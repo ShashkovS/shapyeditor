@@ -1,19 +1,92 @@
+import {
+  getAssetsBaseUrl,
+  setAssetsBaseUrl,
+  resolveAssetUrl,
+  resolveAssetUrlFrom,
+  normalizeAssetsBaseUrl,
+} from './asset-path.js';
+
+export {
+  getAssetsBaseUrl,
+  resolveAssetUrl,
+  resolveAssetUrlFrom,
+  normalizeAssetsBaseUrl,
+} from './asset-path.js';
+
+const globalNamespace = typeof window !== 'undefined'
+  ? window.PyEditorLib || (window.PyEditorLib = {})
+  : null;
+
+const initialGlobalBaseUrl = globalNamespace && globalNamespace.assetsBaseUrl;
+const activeBaseUrl = initialGlobalBaseUrl != null
+  ? setAssetsBaseUrl(initialGlobalBaseUrl)
+  : setAssetsBaseUrl();
+if (globalNamespace) {
+  globalNamespace.assetsBaseUrl = activeBaseUrl;
+}
+
+export function configureWebIde(options = null) {
+  if (!options || typeof options !== 'object') {
+    return getAssetsBaseUrl();
+  }
+  if ('assetsBaseUrl' in options) {
+    const resolved = setAssetsBaseUrl(options.assetsBaseUrl);
+    if (globalNamespace) {
+      globalNamespace.assetsBaseUrl = resolved;
+    }
+    return resolved;
+  }
+  return getAssetsBaseUrl();
+}
+
+if (globalNamespace) {
+  globalNamespace.configureWebIde = configureWebIde;
+  globalNamespace.getWebIdeAssetsBaseUrl = getAssetsBaseUrl;
+}
+
 let pythonIDE = null;
 
-function createIDEhere($container, $examples, probName, installConfig = null, initialCode = '') {
+const STYLE_ASSETS = ['inf_course_v3.css', 'pyide.css'];
+const loadedStyleUrls = new Set();
+
+function createIDEhere(
+  $container,
+  $examples,
+  probName,
+  installConfig = null,
+  initialCode = '',
+  assetsBaseUrl = null
+) {
+  const normalizedBaseUrl = normalizeAssetsBaseUrl(
+    assetsBaseUrl != null ? assetsBaseUrl : getAssetsBaseUrl()
+  );
   if (pythonIDE === null) {
     import('./pyideCore.js')
       .then((pyideCore)=> {
         pythonIDE = pyideCore.pythonIDE;
-        createIDEhere($container, $examples, probName, installConfig, initialCode);  // Таки нужно создать
+        createIDEhere(
+          $container,
+          $examples,
+          probName,
+          installConfig,
+          initialCode,
+          normalizedBaseUrl
+        );
       })
       .catch(err => alert(err));
   } else {
-    const IDE = new pythonIDE($container, $examples, probName, installConfig, initialCode);
+    new pythonIDE(
+      $container,
+      $examples,
+      probName,
+      installConfig,
+      initialCode,
+      normalizedBaseUrl
+    );
   }
 }
 
-class WebIdeElement extends HTMLElement {
+export class WebIdeElement extends HTMLElement {
   static _idCounter = 0;
 
   static _nextId() {
@@ -32,6 +105,8 @@ class WebIdeElement extends HTMLElement {
     this._installConfig = null;
     this._initialCode = '';
     this._storageKey = '';
+    this._assetsBaseUrl = null;
+    this._stylesInjected = false;
   }
 
   connectedCallback() {
@@ -39,6 +114,9 @@ class WebIdeElement extends HTMLElement {
       return;
     }
     this._hasSetup = true;
+
+    this._assetsBaseUrl = this._resolveAssetsBaseUrl();
+    this._ensureStyles();
 
     this._initialCode = this._extractInitialCode();
     const initialContent = this.textContent?.trim();
@@ -87,7 +165,14 @@ class WebIdeElement extends HTMLElement {
     if (this._isOpen && !this._ideInitialized) {
       const hostSection = this._findHostSection();
       const examples = hostSection ? hostSection.getElementsByClassName('example') : [];
-      createIDEhere(this._content, examples, this._storageKey, this._installConfig, this._initialCode);
+      createIDEhere(
+        this._content,
+        examples,
+        this._storageKey,
+        this._installConfig,
+        this._initialCode,
+        this._resolveAssetsBaseUrl()
+      );
       this._ideInitialized = true;
     }
 
@@ -100,6 +185,53 @@ class WebIdeElement extends HTMLElement {
       || this.closest('article')
       || this.parentElement
       || this;
+  }
+
+  _resolveAssetsBaseUrl() {
+    if (this._assetsBaseUrl) {
+      return this._assetsBaseUrl;
+    }
+    const directAttr = this.getAttribute('assets-path');
+    const legacyAttr = directAttr == null ? this.getAttribute('assets-base-url') : null;
+    const candidate = directAttr ?? legacyAttr;
+    if (candidate != null) {
+      this._assetsBaseUrl = normalizeAssetsBaseUrl(candidate);
+    } else {
+      this._assetsBaseUrl = getAssetsBaseUrl();
+    }
+    return this._assetsBaseUrl;
+  }
+
+  _resolveAssetUrl(relativePath) {
+    return resolveAssetUrlFrom(this._resolveAssetsBaseUrl(), relativePath);
+  }
+
+  _ensureStyles() {
+    if (this._stylesInjected) {
+      return;
+    }
+    const doc = this.ownerDocument || (typeof document !== 'undefined' ? document : null);
+    if (!doc || !doc.head) {
+      return;
+    }
+    for (const asset of STYLE_ASSETS) {
+      const url = this._resolveAssetUrl(asset);
+      if (!url || loadedStyleUrls.has(url)) {
+        continue;
+      }
+      const existing = doc.head.querySelector(`link[rel="stylesheet"][href="${url}"]`);
+      if (existing) {
+        loadedStyleUrls.add(url);
+        continue;
+      }
+      const link = doc.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = url;
+      link.dataset.webIde = 'style';
+      doc.head.appendChild(link);
+      loadedStyleUrls.add(url);
+    }
+    this._stylesInjected = true;
   }
 
   _computeStorageKey() {
@@ -204,4 +336,6 @@ class WebIdeElement extends HTMLElement {
   }
 }
 
-customElements.define('web-ide', WebIdeElement);
+if (!customElements.get('web-ide')) {
+  customElements.define('web-ide', WebIdeElement);
+}

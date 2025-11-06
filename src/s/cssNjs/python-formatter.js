@@ -1,24 +1,39 @@
 // python-formatter.js
-const workerUrl = new URL('./ruffFormatterWorker.js', import.meta.url);
+import {
+  getAssetsBaseUrl,
+  resolveAssetUrlFrom,
+} from './asset-path.js';
 
 let formatterWorker = null;
 let lastRequestId = 0;
 const pendingRequests = new Map();
+let currentWorkerScriptUrl = null;
 
 function terminateWorker() {
   if (formatterWorker) {
     formatterWorker.terminate();
     formatterWorker = null;
   }
+  currentWorkerScriptUrl = null;
   for (const { reject } of pendingRequests.values()) {
     reject(new Error('Formatter worker terminated'));
   }
   pendingRequests.clear();
 }
 
+function resolveFormatterWorkerUrl() {
+  const base = getAssetsBaseUrl();
+  return resolveAssetUrlFrom(base, 'ruffFormatterWorker.js');
+}
+
 function ensureWorker() {
+  const workerScriptUrl = resolveFormatterWorkerUrl();
+  if (formatterWorker && currentWorkerScriptUrl !== workerScriptUrl) {
+    terminateWorker();
+  }
   if (!formatterWorker) {
-    formatterWorker = new Worker(workerUrl, { type: 'module' });
+    formatterWorker = new Worker(workerScriptUrl, { type: 'module' });
+    currentWorkerScriptUrl = workerScriptUrl;
 
     formatterWorker.addEventListener('message', (event) => {
       const { type, id, result, error } = event.data || {};

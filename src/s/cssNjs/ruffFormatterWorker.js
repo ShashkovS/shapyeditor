@@ -2,10 +2,14 @@
 
 // Default CDNs; can be overridden by setting self.RUFF_WASM_WEB_URLS = [...]
 // before the worker is created.
-const DEFAULT_RUFF_WASM_WEB_URLS = [
-  'https://esm.run/@astral-sh/ruff-wasm-web@0.8.5',
-  'https://cdn.jsdelivr.net/npm/@astral-sh/ruff-wasm-web@0.8.5/+esm',
-];
+const DEFAULT_RUFF_WASM_WEB_URLS = (() => {
+  try {
+    const localUrl = new URL('./ruff/ruff_wasm.js', import.meta.url).href;
+    return [localUrl];
+  } catch (error) {
+    return [];
+  }
+})();
 
 const globalScope = self;
 

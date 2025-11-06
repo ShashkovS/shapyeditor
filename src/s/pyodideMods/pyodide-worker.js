@@ -3,15 +3,48 @@
  */
 
 const PYODIDE_VERSION = 'v0.28.2';
-const PYODIDE_BASE_URL = `https://cdn.jsdelivr.net/pyodide/${PYODIDE_VERSION}/full/`;
+const WORKER_LOCATION = (() => {
+  try {
+    const href = typeof self.location?.href === 'string' ? self.location.href : '';
+    return href ? new URL(href) : null;
+  } catch (error) {
+    return null;
+  }
+})();
 
+const LOCAL_PYODIDE_BASE_URL = WORKER_LOCATION
+  ? new URL('../pyodide/', WORKER_LOCATION).href
+  : null;
+
+let PYODIDE_BASE_URL = null;
 let usingSkulpt = false;
 
-try {
-  importScripts(`${PYODIDE_BASE_URL}pyodide.js`);
-} catch (error) {
+const candidatePyodideBases = (() => {
+  const overrides = Array.isArray(self.PYODIDE_BASE_URLS) ? self.PYODIDE_BASE_URLS : null;
+  if (overrides && overrides.length > 0) {
+    return overrides;
+  }
+  return [LOCAL_PYODIDE_BASE_URL].filter(Boolean);
+})();
+for (const baseUrl of candidatePyodideBases) {
+  try {
+    self.languagePluginUrl = baseUrl;
+    importScripts(`${baseUrl}pyodide.js`);
+    PYODIDE_BASE_URL = baseUrl;
+    break;
+  } catch (error) {
+    console.warn(`Failed to load Pyodide from ${baseUrl}.`, error);
+  }
+}
+
+if (!PYODIDE_BASE_URL) {
   usingSkulpt = true;
-  console.warn('Failed to load Pyodide from CDN, falling back to Skulpt.', error);
+  try {
+    delete self.languagePluginUrl;
+  } catch (error) {
+    // ignore
+  }
+  console.warn('Pyodide unavailable, falling back to Skulpt.');
   importScripts('../skulpt/skulpt.min.js', '../skulpt/skulpt-stdlib.js');
 }
 

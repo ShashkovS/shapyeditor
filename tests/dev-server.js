@@ -5,7 +5,7 @@ const { URL } = require('url');
 
 const PORT = Number(process.env.PORT || 63343);
 const SITE_PREFIX = '/';
-const ROOT_DIR = path.resolve(__dirname, '..', 'src');
+const ROOT_DIR = path.resolve(__dirname, '..');
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -37,7 +37,7 @@ function sendError(res, statusCode, message) {
 }
 
 function resolvePath(pathname) {
-  if (pathname === '/' || pathname === '/index.html' || pathname === '/') {
+  if (pathname === '/' || pathname === '/index.html') {
     return path.join(ROOT_DIR, 'src', 'htmls', 'demo.html');
   }
   let relativePath = pathname;
@@ -50,11 +50,24 @@ function resolvePath(pathname) {
     return path.join(ROOT_DIR, 'src', 'htmls', 'demo.html');
   }
   const normalizedPath = path.normalize(relativePath);
-  const absolutePath = path.join(ROOT_DIR, normalizedPath);
-  if (!absolutePath.startsWith(ROOT_DIR)) {
-    return null;
+  const candidatePaths = [
+    path.join(ROOT_DIR, normalizedPath),
+    path.join(ROOT_DIR, 'src', normalizedPath),
+    path.join(ROOT_DIR, 'src', 's', normalizedPath),
+  ];
+  for (const candidate of candidatePaths) {
+    if (!candidate.startsWith(ROOT_DIR)) {
+      continue;
+    }
+    try {
+      if (fs.existsSync(candidate)) {
+        return candidate;
+      }
+    } catch (error) {
+      // ignore and try next candidate
+    }
   }
-  return absolutePath;
+  return null;
 }
 
 const server = http.createServer((req, res) => {

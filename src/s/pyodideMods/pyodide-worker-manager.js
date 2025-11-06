@@ -1,7 +1,17 @@
-const pyWorkerUrl = new URL('./pyodide-worker.js', import.meta.url).pathname;
+import {
+  getAssetsBaseUrl,
+  normalizeAssetsBaseUrl,
+  resolveAssetUrlFrom,
+} from '../cssNjs/asset-path.js';
 
 export class workerObj {
-  constructor() {
+  constructor(options = {}) {
+    const rawBaseUrl = typeof options === 'object' && options !== null
+      ? options.assetsBaseUrl ?? null
+      : null;
+    this.assetsBaseUrl = rawBaseUrl != null
+      ? normalizeAssetsBaseUrl(rawBaseUrl)
+      : null;
     this.worker = null;
     this.workerReady = false;
     this.waitUntilReady = Promise.resolve(false);
@@ -16,6 +26,16 @@ export class workerObj {
     this.runOutputs = new Map();
     this.currentOutput = '';
     this.runTerminationWaitMs = 500;
+    this.workerScriptUrl = null;
+  }
+
+  getEffectiveAssetsBaseUrl() {
+    return this.assetsBaseUrl != null ? this.assetsBaseUrl : getAssetsBaseUrl();
+  }
+
+  resolveWorkerScriptUrl() {
+    const base = this.getEffectiveAssetsBaseUrl();
+    return resolveAssetUrlFrom(base, 'pyodideMods/pyodide-worker.js');
   }
 
   /**
@@ -151,10 +171,25 @@ export class workerObj {
    * Если worker ещё не готов, то создаём его и ждём подтверждения готовности.
    */
   init = (timeout = 10000) => {
-    if (!this.worker) {
+    const desiredWorkerUrl = this.resolveWorkerScriptUrl();
+    const needsRecreate = !this.worker || this.workerScriptUrl !== desiredWorkerUrl;
+    if (needsRecreate) {
+      if (this.worker) {
+        try {
+          this.worker.terminate();
+        } catch (error) {
+          console.warn('Failed to terminate existing Pyodide worker before reload', error);
+        }
+      }
+      this.waitUntilReadyResolver = null;
       this.workerReady = false;
-      this.worker = new Worker(pyWorkerUrl, {type: 'classic'});
+      this.workerScriptUrl = desiredWorkerUrl;
+      this.worker = new Worker(desiredWorkerUrl, {type: 'classic'});
       this.worker.onmessage = this.handleWorkerMessage;
+      if (this.waitUntilReadyTimeout) {
+        clearTimeout(this.waitUntilReadyTimeout);
+        this.waitUntilReadyTimeout = null;
+      }
       this.waitUntilReady = new Promise((resolve) => {
         this.waitUntilReadyResolver = resolve;
       });

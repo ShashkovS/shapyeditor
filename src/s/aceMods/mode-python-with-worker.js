@@ -1,4 +1,6 @@
-const workerUrl = new URL('./worker-python.js', import.meta.url).pathname;
+import {getAssetsBaseUrl, resolveAssetUrlFrom} from '../cssNjs/asset-path.js';
+
+const workerUrl = resolveAssetUrlFrom(getAssetsBaseUrl(), '../aceMods/worker-python.js');
 define("ace/mode/python_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
   "use strict";
 
