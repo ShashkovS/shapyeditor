@@ -112,6 +112,7 @@ class WebIdeElement extends HTMLElement {
         this._updateToggleButton();
         return this._ideInitPromise;
       }
+      debugger;
       const hostSection = this._findHostSection();
       const examples = hostSection ? hostSection.getElementsByClassName('example') : [];
       const createdIDE = createIDEhere(this._content, examples, this._storageKey, this._installConfig, this._initialCode);
