@@ -5,11 +5,12 @@ function createIDEhere($container, $examples, probName, installConfig = null, in
     import('./pyideCore.js')
       .then((pyideCore)=> {
         pythonIDE = pyideCore.pythonIDE;
-        createIDEhere($container, $examples, probName, installConfig, initialCode);  // Таки нужно создать
+        return createIDEhere($container, $examples, probName, installConfig, initialCode);  // Таки нужно создать
       })
       .catch(err => alert(err));
   } else {
     const IDE = new pythonIDE($container, $examples, probName, installConfig, initialCode);
+    return IDE;
   }
 }
 
@@ -32,6 +33,7 @@ class WebIdeElement extends HTMLElement {
     this._installConfig = null;
     this._initialCode = '';
     this._storageKey = '';
+    this._IDE = null;
   }
 
   connectedCallback() {
@@ -87,7 +89,7 @@ class WebIdeElement extends HTMLElement {
     if (this._isOpen && !this._ideInitialized) {
       const hostSection = this._findHostSection();
       const examples = hostSection ? hostSection.getElementsByClassName('example') : [];
-      createIDEhere(this._content, examples, this._storageKey, this._installConfig, this._initialCode);
+      this._IDE = createIDEhere(this._content, examples, this._storageKey, this._installConfig, this._initialCode);
       this._ideInitialized = true;
     }
 
