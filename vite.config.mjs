@@ -49,6 +49,10 @@ export default defineConfig({
           src: 'src/s/aceMods/worker-python.js',
           dest: 'aceMods'
         },
+        {
+          src: 'src/s/aceMods/python-validation.*',
+          dest: 'aceMods'
+        },
       ]
     })
   ],

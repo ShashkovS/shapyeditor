@@ -1,5 +1,5 @@
 // ВАЖНО: Этот файл должен называться именно worker-python!
-const pythonValidationUrl = location.origin + '/s/aceMods/python-validation.min.js';
+const pythonValidationUrl = location.origin + '/shapyeditor/dist/aceMods/python-validation.min.js';
 console.warn('Worker validator start');
 /**
  * Этот worker создан на основе worker-json.js (https://github.com/ajaxorg/ace-builds/blob/master/src-noconflict/worker-json.js)
