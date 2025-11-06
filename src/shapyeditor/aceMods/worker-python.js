@@ -1,8 +1,5 @@
 // ВАЖНО: Этот файл должен называться именно worker-python!
 const pythonValidationUrl = location.origin + '/shapyeditor/aceMods/python-validation.min.js';
-http://localhost:63343/shapyeditor/aceMods/python-validation.min.js
-http://localhost:63343/shapyeditor/src/shapyeditor/ace/ace.min.js
-
 
 console.warn('Worker validator start');
 /**
