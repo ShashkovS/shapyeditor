@@ -2,12 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link href="../s/cssNjs/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
   <script type="module" src="/dist/py-editor-lib.es.js"></script>
-
-  <title>
-    xx
-  </title></head>
+  <title>Demo!</title>
+</head>
 <body>
 <div id="content">
 
@@ -16,7 +13,7 @@
     <p>The <code>input()</code> function always returns a string.
       But a string can be converted to a number if needed!
     <p>
-      A number is given as input. Read it and print the next number.
+      A number $x$ is given as input. Read it and print the next number $x+1$.
     </p>
 
     <div class="example"><pre class="input">
@@ -47,24 +44,13 @@
       b = 2
       print(a + b)
     </web-ide>
-    <br>
-    <web-ide>
-      print("Hello, theory2!")
-      a = 1
-      b = 21
-      print(a + b)
-    </web-ide>
-
-    <br>
     <p>Even numpy can be used: </p>
     <web-ide micropip="numpy">
       import numpy as np
       np.random.seed(2025)
       print(np.random.randint(1, 9, (2,3,4)))
     </web-ide>
-
   </article>
-
 
 </div>
 </body>
