@@ -1,17 +1,36 @@
 let pythonIDE = null;
+let pythonIDELoadPromise = null;
+
+function loadPythonIDE() {
+  if (pythonIDE !== null) {
+    return Promise.resolve(pythonIDE);
+  }
+  if (!pythonIDELoadPromise) {
+    pythonIDELoadPromise = import('./pyideCore.js')
+      .then((pyideCore) => {
+        pythonIDE = pyideCore.pythonIDE;
+        return pythonIDE;
+      })
+      .catch((err) => {
+        pythonIDELoadPromise = null;
+        if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+          window.alert(err);
+        } else if (typeof alert === 'function') {
+          alert(err);
+        } else {
+          console.error(err);
+        }
+        throw err;
+      });
+  }
+  return pythonIDELoadPromise;
+}
 
 function createIDEhere($container, $examples, probName, installConfig = null, initialCode = '') {
   if (pythonIDE === null) {
-    import('./pyideCore.js')
-      .then((pyideCore)=> {
-        pythonIDE = pyideCore.pythonIDE;
-        return createIDEhere($container, $examples, probName, installConfig, initialCode);  // Таки нужно создать
-      })
-      .catch(err => alert(err));
-  } else {
-    const IDE = new pythonIDE($container, $examples, probName, installConfig, initialCode);
-    return IDE;
+    return loadPythonIDE().then((PythonIDE) => new PythonIDE($container, $examples, probName, installConfig, initialCode));
   }
+  return new pythonIDE($container, $examples, probName, installConfig, initialCode);
 }
 
 class WebIdeElement extends HTMLElement {
@@ -34,6 +53,8 @@ class WebIdeElement extends HTMLElement {
     this._initialCode = '';
     this._storageKey = '';
     this._IDE = null;
+    this._ideInitPromise = null;
+    window.shapyide = this;
   }
 
   connectedCallback() {
@@ -87,13 +108,35 @@ class WebIdeElement extends HTMLElement {
     this.classList.toggle('web-ide--open', this._isOpen);
 
     if (this._isOpen && !this._ideInitialized) {
+      if (this._ideInitPromise) {
+        this._updateToggleButton();
+        return this._ideInitPromise;
+      }
       const hostSection = this._findHostSection();
       const examples = hostSection ? hostSection.getElementsByClassName('example') : [];
-      this._IDE = createIDEhere(this._content, examples, this._storageKey, this._installConfig, this._initialCode);
-      this._ideInitialized = true;
+      const createdIDE = createIDEhere(this._content, examples, this._storageKey, this._installConfig, this._initialCode);
+      if (createdIDE && typeof createdIDE.then === 'function') {
+        this._ideInitPromise = createdIDE
+          .then((ideInstance) => {
+            this._IDE = ideInstance;
+            this._ideInitialized = true;
+            return ideInstance;
+          })
+          .catch((err) => {
+            this._ideInitPromise = null;
+            throw err;
+          });
+      } else {
+        this._IDE = createdIDE || null;
+        this._ideInitialized = this._IDE !== null;
+        this._ideInitPromise = Promise.resolve(this._IDE);
+      }
+      this._updateToggleButton();
+      return this._ideInitPromise;
     }
 
     this._updateToggleButton();
+    return this._IDE;
   }
 
   _findHostSection() {
