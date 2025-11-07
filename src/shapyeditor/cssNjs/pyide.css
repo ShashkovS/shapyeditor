@@ -164,12 +164,13 @@
 }
 
 .delButton, .traceButton {
-    width: 2em;
-    height: 2em;
-    margin: 0.2em -2.2em 0 0.2em;
-    padding: 0;
-    position: relative;
-    z-index: 2;
+  width: 1.5em;
+  height: 1.5em;
+  margin: 0.3em -1.9em 0 0.2em;
+  padding: 0;
+  position: relative;
+  z-index: 2;
+  background-color: darkcyan;
 }
 
 .delButton:before { content: "❌";}
