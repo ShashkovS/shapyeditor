@@ -148,7 +148,7 @@ class WebIdeElement extends HTMLElement {
   }
 
   _computeStorageKey() {
-    const problemSection = this.closest('.problem');
+    const problemSection = this.closest('.problem') || this.closest('.probNav');
     if (problemSection) {
       const probNameNode = problemSection.getElementsByClassName('prob_name')[0];
       const probName = probNameNode?.innerText?.trim();
