@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     if (!mainPhraseEl) return { shouldRun: false };
 
-    const hasAssessmentText = mainPhraseEl.innerText.toLowerCase().includes('assessment');
+    const mainPhraseText = mainPhraseEl.innerText.toLowerCase();
+    const hasAssessmentText = mainPhraseText.includes('assessment') || mainPhraseText.includes('test') || mainPhraseText.includes('контрольная') || mainPhraseText.includes('самостоятельная');
     const hasProbId = urlParams.has('prob_id');
     const hasRunId = urlParams.has('run_id');
     const probId = urlParams.get('prob_id') || null;
@@ -127,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const devToolsCheck = setInterval(() => {
-      const threshold = 160;
+      const threshold = 190;
       if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
         clearInterval(devToolsCheck);
         triggerCheatingProtocol('Developer Tools opened');

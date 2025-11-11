@@ -99,6 +99,9 @@ const headerToLink = (text) => {
 
 const createContent = () => {
   let $elemToAddContent = document.getElementById("content");
+  if (!$elemToAddContent) {
+    return;
+  }
   let $article = document.createElement('article');
   $article.className = "theory";
   $article.innerHTML = '<h2>Contents</h2>\n';
