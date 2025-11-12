@@ -171,7 +171,7 @@ class WebIdeElement extends HTMLElement {
     const urlParams = new URLSearchParams(window.location.search);
     const probId = urlParams.get('prob_id');
     if (probId) {
-      `web-ide-${probId}-${suffix}`;
+      return `web-ide-${probId}-${suffix}`;
     }
 
     const label = this._label?.trim();
