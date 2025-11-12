@@ -148,7 +148,6 @@ class WebIdeElement extends HTMLElement {
   }
 
   _computeStorageKey() {
-    debugger;
     const problemSection = this.closest('.problem') || this.closest('.probNav');
     if (problemSection) {
       const probNameNode = problemSection.getElementsByClassName('prob_name')[0];
@@ -169,14 +168,15 @@ class WebIdeElement extends HTMLElement {
       }
     }
 
-    const label = this._label?.trim();
-    if (label) {
-      return `${label}__${suffix}`;
-    }
     const urlParams = new URLSearchParams(window.location.search);
     const probId = urlParams.get('prob_id');
     if (probId) {
       `web-ide-${probId}-${suffix}`;
+    }
+
+    const label = this._label?.trim();
+    if (label) {
+      return `${label}__${suffix}`;
     }
 
     return `web-ide-${suffix}`;
