@@ -172,6 +172,11 @@ class WebIdeElement extends HTMLElement {
     if (label) {
       return `${label}__${suffix}`;
     }
+    const urlParams = new URLSearchParams(window.location.search);
+    const probId = urlParams.get('prob_id');
+    if (probId) {
+      `web-ide-${probId}-${suffix}`;
+    }
 
     return `web-ide-${suffix}`;
   }
