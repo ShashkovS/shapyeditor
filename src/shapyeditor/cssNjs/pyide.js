@@ -148,6 +148,7 @@ class WebIdeElement extends HTMLElement {
   }
 
   _computeStorageKey() {
+    debugger;
     const problemSection = this.closest('.problem') || this.closest('.probNav');
     if (problemSection) {
       const probNameNode = problemSection.getElementsByClassName('prob_name')[0];
