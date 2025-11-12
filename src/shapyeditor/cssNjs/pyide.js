@@ -168,10 +168,12 @@ class WebIdeElement extends HTMLElement {
       }
     }
 
+    const mainPhraseText = document.getElementsByClassName('main_phrase')?.[0]?.innerText?.toLowerCase?.() || '';
+
     const urlParams = new URLSearchParams(window.location.search);
     const probId = urlParams.get('prob_id');
     if (probId) {
-      return `web-ide-${probId}-${suffix}`;
+      return `web-ide-${mainPhraseText}-${probId}-${suffix}`;
     }
 
     const label = this._label?.trim();
