@@ -73,6 +73,7 @@ class WebIdeElement extends HTMLElement {
       : (fallbackLabel && fallbackLabel.length > 0 ? fallbackLabel : 'IDE');
 
     this._storageKey = this._computeStorageKey();
+    console.log(`Storage key: ${this._storageKey}`);
 
     this.classList.add('web-ide');
     this.textContent = '';
