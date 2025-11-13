@@ -146,9 +146,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (probId) {
     try {
       console.log("This is a problem page. Setting up IDE.");
-      const CSS_HREF = 'https://leaders.tech/shapyeditor/cssNjs/pyide.css';
-      const MOD_INF = 'https://leaders.tech/shapyeditor/cssNjs/inf_course_v3.js';
-      const MOD_PYIDE = 'https://leaders.tech/shapyeditor/cssNjs/pyide.js';
+      const CSS_HREF = 'https://leaders.tech/shapyeditor/cssNjs/pyide_v4.css';
+      const MOD_INF = 'https://leaders.tech/shapyeditor/cssNjs/inf_course_v4.js';
+      const MOD_PYIDE = 'https://leaders.tech/shapyeditor/cssNjs/pyide_v4.js';
       const ensureLink = (href) => { if (!document.querySelector(`link[rel="stylesheet"][href="${href}"]`)) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; l.media = 'all'; document.head.appendChild(l); } };
       const loadModule = (src) => new Promise((resolve, reject) => { const s = document.createElement('script'); s.type = 'module'; s.src = src; s.onload = () => resolve(); s.onerror = (e) => reject(new Error(`Failed to load ${src}`)); document.head.appendChild(s); });
 

@@ -6,7 +6,7 @@ function loadPythonIDE() {
     return Promise.resolve(pythonIDE);
   }
   if (!pythonIDELoadPromise) {
-    pythonIDELoadPromise = import('./pyideCore.js')
+    pythonIDELoadPromise = import('./pyideCore_v4.js')
       .then((pyideCore) => {
         pythonIDE = pyideCore.pythonIDE;
         return pythonIDE;
