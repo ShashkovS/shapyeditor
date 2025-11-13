@@ -1,3 +1,5 @@
+// Put in /var/www/html/ejudge/ejhooks.js
+
 document.addEventListener('DOMContentLoaded', async () => {
   'use strict';
 
